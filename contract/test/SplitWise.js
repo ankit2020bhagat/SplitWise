@@ -38,8 +38,15 @@ describe("SpltiWise contract", function () {
       );
   });
   it("get all Deatials", async function () {
-    const owelend = await splitWise.connect(accounts[1]).getDetails();
-    console.log("owe and lend ", owelend.toString());
+    const [owelend, lend, own] = await splitWise
+      .connect(accounts[1])
+      .getDetails();
+    console.log(
+      "owe and lend ",
+      owelend.toString(),
+      lend.toString(),
+      own.toString()
+    );
   });
 
   it("Make Payment", async function () {
@@ -47,7 +54,11 @@ describe("SpltiWise contract", function () {
       .connect(accounts[3])
       .makePayment({ value: 232 });
     await txn.wait();
-    const owelend = await splitWise.connect(accounts[3]).getDetails();
-    console.log("owe and lend ", owelend.toString());
+    const [contributor, lend, borrow] = await splitWise
+      .connect(accounts[3])
+      .getDetails();
+    console.log("owe and lend ", contributor.toString());
+    // console.log("owe and lend ", lend.toString());
+    // console.log("owe and lend ", borrow.toString());
   });
 });

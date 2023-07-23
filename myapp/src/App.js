@@ -11,8 +11,12 @@ const App = () => {
   const [userName, setUserName] = useState("");
   const [purpose, setPurpose] = useState("");
   const [amount, setAmount] = useState("");
-  const [contributors, setContributors] = useState([]);
+  const [contributors, setContributors] = useState("");
+  const [lend, setLend] = useState("");
+  const [borrow, setBorrow] = useState("");
   const [vendor, setVendor] = useState("");
+  const [totalLend, setTotalLend] = useState("");
+  const [totalBorrow, setTotalBorrow] = useState("");
 
   const connectWallet = async () => {
     try {
@@ -41,12 +45,13 @@ const App = () => {
       const { ethereum } = window;
       if (ethereum) {
         const provider = new ethers.BrowserProvider(ethereum);
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
         const contract = new ethers.Contract(
           CONTRACT_ADDRESS,
           splitwise.abi,
           signer
         );
+        console.log(userAddress, userName);
         const txn = await contract.addContributors(userAddress, userName);
         await txn.wait();
       }
@@ -54,24 +59,48 @@ const App = () => {
       console.log(error);
     }
   };
+  const handleSubmit = () => {
+    const valuesArray = contributors.split(",").map((item) => item.trim());
+
+    return valuesArray;
+  };
+
+  function convertTo2DArray(arr, rows, cols) {
+    if (arr.length !== rows * cols) {
+      throw new Error("Array length should be equal to rows * cols.");
+    }
+
+    const resultArray = [];
+    let index = 0;
+
+    for (let i = 0; i < rows; i++) {
+      const row = [];
+      for (let j = 0; j < cols; j++) {
+        row.push(arr[index]);
+        index++;
+      }
+      resultArray.push(row);
+    }
+
+    return resultArray;
+  }
 
   const addExpenses = async () => {
     try {
       const { ethereum } = window;
       if (ethereum) {
         const provider = new ethers.BrowserProvider(ethereum);
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
+        const value = handleSubmit();
         const contract = new ethers.Contract(
           CONTRACT_ADDRESS,
           splitwise.abi,
           signer
         );
-        const txn = await contract.addExpenses(
-          purpose,
-          amount,
-          contributors,
-          vendor
-        );
+        console.log(value);
+        const txn = await contract.addExpenses(purpose, amount, value, vendor, {
+          value: amount,
+        });
         await txn.wait();
       }
     } catch (error) {
@@ -83,13 +112,15 @@ const App = () => {
       const { ethereum } = window;
       if (ethereum) {
         const provider = new ethers.BrowserProvider(ethereum);
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
         const contract = new ethers.Contract(
           CONTRACT_ADDRESS,
           splitwise.abi,
           signer
         );
-        const txn = await contract.makePayment();
+        getDetials();
+
+        const txn = await contract.makePayment({ value: totalBorrow });
         await txn.wait();
       }
     } catch (error) {
@@ -97,18 +128,44 @@ const App = () => {
     }
   };
 
+  function printArray(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = 0; j < arr[i].length - 1; j++) {
+        console.log(arr[i][0]);
+        let lend = parseInt(arr[i][j]);
+        if (lend > 0) {
+          console.log(lend);
+          setLend(lend);
+        }
+        let borrow = parseInt(arr[i][j + 1]);
+        if (borrow > 0) {
+          console.log(borrow);
+          setBorrow(borrow);
+        }
+      }
+    }
+  }
+
   const getDetials = async () => {
     try {
       const { ethereum } = window;
       if (ethereum) {
         const provider = new ethers.BrowserProvider(ethereum);
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
         const contract = new ethers.Contract(
           CONTRACT_ADDRESS,
           splitwise.abi,
           signer
         );
-        const txn = await contract.getDetails();
+        const [contributor, lend, borrow] = await contract.getDetails();
+        const delimiter = ",";
+
+        const result_array = contributor.toString().split(delimiter);
+        const twoDArray = convertTo2DArray(result_array, 2, 4);
+        printArray(twoDArray);
+        console.log("Lend", lend.toString(), "Borrow", borrow.toString());
+        setTotalLend(lend.toString());
+        setTotalBorrow(borrow.toString());
       }
     } catch (error) {
       console.log(error);
@@ -235,6 +292,9 @@ const App = () => {
               Get_Detials
             </button>
           </header>
+          <h2></h2>
+          <h2>You are owed {totalLend} Wei Overall</h2>
+          <h2>You are Borrowed {totalBorrow} Wei Overall</h2>
         </div>
         {!currentAccount && renderNotConnectedContainer()}
         {/* Render the input form if an account is connected */}

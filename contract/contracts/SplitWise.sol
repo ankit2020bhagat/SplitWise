@@ -107,6 +107,9 @@ contract SplitWise is ReentrancyGuard, AccessControl {
         address[] calldata _contributor,
         address _vendor
     ) external payable nonReentrant onlyContributor {
+        if (msg.value < _amount) {
+            revert InsufficientFunds();
+        }
         uint256 _id = id.current();
         Expense storage s_expenses = expenses[_id];
         s_expenses.purpose = _purpose;
@@ -132,13 +135,18 @@ contract SplitWise is ReentrancyGuard, AccessControl {
         address[] calldata _contributor,
         uint cost
     ) internal {
+        Contributor memory p_whileList = addWhiteList[msg.sender];
         for (uint8 i = 0; i < _contributor.length; i++) {
             Contributor storage c_contributor = contributors[_contributor[i]][
                 msg.sender
             ];
+            Contributor memory c_whileList = addWhiteList[_contributor[i]];
             Contributor storage p_contributor = contributors[msg.sender][
                 _contributor[i]
             ];
+            p_contributor.name = p_whileList.name;
+            c_contributor.name = c_whileList.name;
+            c_contributor.isVerified = c_whileList.isVerified;
             uint _lend = c_contributor.lend;
 
             if (_lend > 0) {
@@ -180,11 +188,12 @@ contract SplitWise is ReentrancyGuard, AccessControl {
      * @notice Make a payment to settle outstanding balances
      */
     function makePayment() external payable nonReentrant onlyContributor {
-        (, uint lend) = getDetails();
+        (, , uint lend) = getDetails();
         if (msg.value < lend) {
             revert InsufficientFunds();
         }
-        for (uint i = 0; i < contributor.length; i++) {
+        uint length = contributor.length;
+        for (uint i = 0; i < length; i++) {
             Contributor storage p_contributor = contributors[msg.sender][
                 contributor[i]
             ];
@@ -206,17 +215,37 @@ contract SplitWise is ReentrancyGuard, AccessControl {
 
     /**
      * @notice Get contributor details including owed and lent amounts
+     * @
      * @return _lend The total amount owed by the contributor
      * @return _borrow The total amount lent by the contributor
      */
-    function getDetails() public view returns (uint _lend, uint _borrow) {
-        for (uint8 i = 0; i < contributor.length; i++) {
-            Contributor memory m_contributor = contributors[msg.sender][
+    function getDetails()
+        public
+        view
+        returns (Contributor[] memory, uint, uint)
+    {
+        uint length = contributor.length;
+        uint _lend;
+        uint _borrow;
+        uint currentIndex = 0;
+        Contributor[] memory _contributor = new Contributor[](length - 1);
+        for (uint8 i = 0; i < length; i++) {
+            Contributor memory p_contributor = contributors[msg.sender][
                 contributor[i]
             ];
-            _lend += m_contributor.lend;
-            _borrow += m_contributor.borrow;
+            if (p_contributor.lend > 0 || p_contributor.borrow > 0) {
+                Contributor memory c_contributor = contributors[contributor[i]][
+                    msg.sender
+                ];
+
+                _contributor[currentIndex] = c_contributor;
+                currentIndex += 1;
+            }
+            _lend += p_contributor.lend;
+
+            _borrow += p_contributor.borrow;
         }
+        return (_contributor, _lend, _borrow);
     }
 
     /**
