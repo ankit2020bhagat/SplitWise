@@ -52,7 +52,7 @@ contract SplitWise is ReentrancyGuard, AccessControl {
     event MakePayment(
         address indexed from,
         uint indexed amount,
-        address[] indexed user
+        address indexed user
     );
 
     constructor() {
@@ -208,9 +208,9 @@ contract SplitWise is ReentrancyGuard, AccessControl {
                 }
                 p_contributor.borrow = 0;
                 c_contributor.lend = 0;
+                emit MakePayment(msg.sender, msg.value, contributor[i]);
             }
         }
-        emit MakePayment(msg.sender, msg.value, contributor);
     }
 
     /**

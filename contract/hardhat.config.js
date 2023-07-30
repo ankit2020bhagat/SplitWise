@@ -1,5 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
-
+require("hardhat-deploy");
 require("dotenv").config();
 module.exports = {
   solidity: "0.8.19",
@@ -38,6 +38,6 @@ module.exports = {
     timeout: 50000,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API,
+    apiKey: process.env.POLYGON_API_KEY,
   },
 };
