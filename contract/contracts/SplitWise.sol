@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -11,7 +10,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  * @notice A smart contract for splitting expenses among contributors
  */
 contract SplitWise is ReentrancyGuard, AccessControl {
-    using SafeMath for uint256;
     using Counters for Counters.Counter;
     Counters.Counter private id;
 
