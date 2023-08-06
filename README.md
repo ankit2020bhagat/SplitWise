@@ -1,24 +1,51 @@
-SplitWise Contract
-SplitWise is a Solidity smart contract that facilitates the splitting of expenses among multiple contributors. It allows contributors to add expenses, make payments, and keep track of their owed and lent amounts.
+SplitWise Smart Contract
+The SplitWise Smart Contract is a decentralized application (DApp) built on the Ethereum blockchain. It provides a smart way to split expenses among contributors and settle outstanding balances in a secure and transparent manner.
+
+Table of Contents
+Introduction
+Features
+Requirements
+Usage
+Contract Deployment
+Contributing
+License
+Introduction
+The SplitWise Smart Contract allows contributors to add expenses and split them among other verified contributors. Each contributor can settle their outstanding balances by making payments to others. The contract ensures that only verified contributors can add expenses and make payments, and it handles the settlement of expenses automatically.
 
 Features
-Add contributors with verified status
-Add expenses with a purpose, amount, vendor, and payer
-Split expenses among contributors and update owed and lent amounts
-Make payments to settle outstanding balances
-Retrieve contributor details including owed and lent amounts
-Prerequisites
-Solidity version 0.8.18
-OpenZeppelin Contracts library (access, utils, security)
+Role-based access control using OpenZeppelin's AccessControl library.
+Contributors can be added by the contract's admin with verified status.
+Verified contributors can add expenses, split them among other contributors, and make payments to settle their outstanding balances.
+Detailed contributor information, including lending and borrowing amounts, can be retrieved.
+Built-in protection against reentrancy attacks using OpenZeppelin's ReentrancyGuard.
+Transactions are handled transparently on the Ethereum blockchain.
+Requirements
+Node.js (v12 or higher)
+Hardhat (v2.0 or higher)
+Solidity (v0.8.19 or compatible)
+OpenZeppelin Contracts (v4.0.0 or compatible)
 Usage
-Deploy the SplitWise contract to an Ethereum network of your choice.
-Set up the default admin role for managing contributor access.
-Add contributors using the addContributors function, specifying the user's address and name. This function can only be called by the contract's admin.
-Contributors can add expenses using the addExpenses function, providing the purpose, amount, vendor address, and an array of contributor addresses involved in the expense. Payments are split equally among the contributors, and the owed and lent amounts are updated accordingly.
-Contributors can make payments using the makePayment function, which transfers the owed amount to the respective contributors. The payment amount should cover the total owed amount.
-Contributor details, including owed and lent amounts, can be retrieved using the getDetails function.
-Security Considerations
-The contract utilizes role-based access control to manage contributor access. Only the contract's admin can add contributors and perform administrative functions.
-The contract uses the ReentrancyGuard modifier to protect against reentrancy attacks.
+To use the SplitWise Smart Contract, follow these steps:
+
+Install the required dependencies:
+
+Copy code
+npm install
+Compile the smart contract:
+
+python
+Copy code
+npx hardhat compile
+Run the tests to ensure everything works correctly:
+
+bash
+Copy code
+npx hardhat test
+Deploy the contract to an Ethereum network of your choice (testnet or mainnet).
+
+Interact with the contract using a compatible Ethereum wallet or DApp browser.
+Contributing
+Contributions to the SplitWise Smart Contract are welcome! If you find any issues or want to add new features, please open an issue or submit a pull request.
+
 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+The SplitWise Smart Contract is licensed under the MIT License. See LICENSE for more information.

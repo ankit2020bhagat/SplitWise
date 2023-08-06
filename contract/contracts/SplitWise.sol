@@ -115,7 +115,7 @@ contract SplitWise is ReentrancyGuard, AccessControl {
         s_expenses.vendor = _vendor;
         (bool success, ) = _vendor.call{value: msg.value}("");
         if (!success) {
-            revert InsufficientFunds();
+            revert TranasctionFailed();
         }
         s_expenses.payer = msg.sender;
         uint256 cost = _amount / (_contributor.length + 1);

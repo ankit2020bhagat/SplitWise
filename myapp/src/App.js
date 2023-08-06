@@ -60,8 +60,8 @@ const App = () => {
     }
   };
   const handleSubmit = () => {
-    const valuesArray = contributors.split(",").map((item) => item.trim());
-
+    const valuesArray = contributors.split(",")?.map((item) => item.trim());
+?.
     return valuesArray;
   };
 
